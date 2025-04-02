@@ -15,14 +15,11 @@ public class ApiRunnerTest {
 
     @Test
     public void Testparallel(){
-        String resultPath = "C:\\Users\\IB\\Downloads\\Karate\\Karate\\src\\test\\resources\\feature\\export";
         Results result = Runner.path("classpath:feature/import")
-                .reportDir(resultPath)
                 .tags()
                 .parallel(10);
         assertTrue(result.getFailCount()==0);
 
-        System.out.println("Rapports générés dans : " + result.getReportDir());
     }
 
 
