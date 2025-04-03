@@ -1,6 +1,6 @@
 import com.intuit.karate.Results;
 import com.intuit.karate.Runner;
-import org.junit.Before;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ public class ApiRunnerTest {
 
     @Test
     public void Testparallel(){
-        Results result = Runner.path("classpath:feature/import")
+        Results result = Runner.path("classpath:feature/TP1/GetUserTest.feature")
                 .tags()
                 .parallel(10);
         assertTrue(result.getFailCount()==0);
