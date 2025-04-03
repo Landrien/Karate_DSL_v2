@@ -18,7 +18,7 @@ public class ApiRunnerTest {
         Results result = Runner.path("classpath:feature/TP1/GetUserTest.feature")
                 .tags()
                 .parallel(10);
-        assertTrue(result.getFailCount()==0);
+        assertTrue(result.getFailCount()==0, "Il y a des échecs : " + result.getErrorMessages());
 
     }
 
