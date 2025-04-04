@@ -61,15 +61,7 @@ pipeline{
         }
         stage('Merge JSON Reports') {
             steps {
-                script{
-                    bat '''
-                    powershell -Command "
-                    Get-ChildItem -Path target\\ -Filter *.json |
-                        Get-Content |
-                        Out-File -Encoding UTF8 merged.json
-                    "
-                    '''
-                }
+                bat 'copy /b target\\*.json merged.json'
             }
         }
 
