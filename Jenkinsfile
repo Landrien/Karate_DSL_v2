@@ -9,85 +9,83 @@ pipeline{
         XRAY_TOKEN = ""
     }
     stages {
-            stage('Authenticate with Xray') {
-                steps {
-                    script {
-                        def authResponse = bat(
-                            script: """
-                                curl -H "Content-Type: application/json" -X POST --data ^
-                                "{\\"client_id\\": \\"${CLIENT_ID}\\", \\"client_secret\\": \\"${CLIENT_SECRET}\\"}" ^
-                                ${XRAY_AUTH_URL} 2> nul
-                            """,
-                            returnStdout: true
-                        ).trim()
+        stage('Authenticate with Xray') {
+            steps {
+                script {
+                    def authResponse = bat(
+                        script: """
+                            curl -H "Content-Type: application/json" -X POST --data ^
+                            "{\\"client_id\\": \\"${CLIENT_ID}\\", \\"client_secret\\": \\"${CLIENT_SECRET}\\"}" ^
+                            ${XRAY_AUTH_URL} 2> nul
+                        """,
+                        returnStdout: true
+                    ).trim()
 
-                        //echo "Xray Authentication Response: ${authResponse}"
+                    //echo "Xray Authentication Response: ${authResponse}"
 
-                        // Récupère la dernière ligne = le token
-                        def lines = authResponse.readLines()
-                        def token = lines[1].replaceAll('"', '').trim()
+                    // Récupère la dernière ligne = le token
+                    def lines = authResponse.readLines()
+                    def token = lines[1].replaceAll('"', '').trim()
 
-                        XRAY_TOKEN = token
-                        echo "Xray Token: ${XRAY_TOKEN}"
-                    }
-                }
-            }
-
-            stage('Import des Features') {
-                steps {
-
-                    script {
-                        def importResponse = bat(
-                            script: """
-                                curl -H "Content-Type: application/json" ^
-                                -X GET -H "Authorization: Bearer ${XRAY_TOKEN}" ^
-                                ${XRAY_IMPORT_FEATURE} > features.zip
-                            """,
-                            returnStdout: true
-                        ).trim()
-
-                        echo "Xray import response: ${importResponse}"
-                    }
-                    script {
-                            powershell 'Expand-Archive -Path features.zip -DestinationPath src/test/resources/features/ -Force'
-                    }
-                }
-            }
-
-            stage('Test') {
-                steps {
-                    bat 'mvn test'
-                }
-            }
-            stage('Merge JSON Reports') {
-                        steps {
-                            bat 'copy /b target\\features.*.json merged.json'
-                        }
-                    }
-
-            stage('Export report à XRAY') {
-                steps {
-                    script {
-                        def exportResponse = bat(
-                            script: """
-                                curl -H "Content-Type: application/json" ^
-                                -X POST -H "Authorization: Bearer ${XRAY_TOKEN}" ^
-                                --data @target/merged.json ${XRAY_REPORT_JSON}
-                            """,
-                            returnStdout: true
-                        ).trim()
-
-                        echo "Xray export response: ${exportResponse}"
-                    }
+                    XRAY_TOKEN = token
+                    echo "Xray Token: ${XRAY_TOKEN}"
                 }
             }
         }
 
-        post {
-            always {
-                junit 'target/surefire-reports/*.xml'
-                cucumber fileIncludePattern: 'target/cucumber.json'
+        stage('Import des Features') {
+            steps {
+
+                script {
+                    def importResponse = bat(
+                        script: """
+                            curl -H "Content-Type: application/json" ^
+                            -X GET -H "Authorization: Bearer ${XRAY_TOKEN}" ^
+                            ${XRAY_IMPORT_FEATURE} > features.zip
+                        """,
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Xray import response: ${importResponse}"
+                }
+                script {
+                        powershell 'Expand-Archive -Path features.zip -DestinationPath src/test/resources/features/ -Force'
+                }
             }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+        stage('Merge JSON Reports') {
+                    steps {
+                        bat 'copy /b target\\features.*.json merged.json'
+                    }
+                }
+
+        stage('Export report à XRAY') {
+            steps {
+                script {
+                    def exportResponse = bat(
+                        script: """
+                            curl -H "Content-Type: application/json" ^
+                            -X POST -H "Authorization: Bearer ${XRAY_TOKEN}" ^
+                            --data @target/merged.json ${XRAY_REPORT_JSON}
+                        """,
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Xray export response: ${exportResponse}"
+                }
+            }
+        }
+    }
+    post {
+        always {
+            junit 'target/surefire-reports/*.xml'
+            cucumber fileIncludePattern: 'target/cucumber.json'
         }
     }
 }
