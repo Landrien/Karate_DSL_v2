@@ -15,8 +15,9 @@ public class ApiRunnerTest {
 
     @Test
     public void Testparallel(){
-        Results result = Runner.path("classpath:feature/TP1/GetUserTest.feature")
+        Results result = Runner.path("classpath:features")
                 .tags()
+                .outputCucumberJson(true)
                 .parallel(10);
         assertTrue(result.getFailCount()==0, "Il y a des échecs : " + result.getErrorMessages());
 
