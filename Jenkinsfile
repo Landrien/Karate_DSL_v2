@@ -72,7 +72,7 @@ pipeline{
                         script: """
                             curl -H "Content-Type: application/json" ^
                             -X POST -H "Authorization: Bearer ${XRAY_TOKEN}" ^
-                            --data @target/merged.json ${XRAY_REPORT_JSON}
+                            --data @merged.json ${XRAY_REPORT_JSON}
                         """,
                         returnStdout: true
                     ).trim()
@@ -84,8 +84,8 @@ pipeline{
     }
     post {
         always {
-            junit 'target/surefire-reports/*.xml'
-            cucumber fileIncludePattern: 'target/cucumber.json'
+            //junit 'target/surefire-reports/*.xml'
+            cucumber fileIncludePattern: 'merged.json'
         }
     }
 }
