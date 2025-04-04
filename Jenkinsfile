@@ -61,7 +61,7 @@ pipeline{
         }
         stage('Merge JSON Reports') {
                     steps {
-                        bat 'copy /b target\\features.*.json merged.json'
+                        bat 'copy /b target\\*.json merged.json'
                     }
                 }
 
