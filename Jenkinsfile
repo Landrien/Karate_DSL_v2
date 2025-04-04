@@ -60,10 +60,18 @@ pipeline{
             }
         }
         stage('Merge JSON Reports') {
-                    steps {
-                        bat 'copy /b target\\*.json merged.json'
-                    }
+            steps {
+                script{
+                    bat '''
+                    powershell -Command "
+                    Get-ChildItem -Path target\\ -Filter *.json |
+                        Get-Content |
+                        Out-File -Encoding UTF8 merged.json
+                    "
+                    '''
                 }
+            }
+        }
 
         stage('Export report à XRAY') {
             steps {
